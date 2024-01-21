@@ -1,8 +1,110 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./style.scss";
+import { useLocation, useNavigate } from "react-router-dom";
+import ContentWrapper from "../contentWrapper/ContentWrapper";
+import logo from "../../assets/movix-logo.svg";
+import { HiOutlineSearch } from "react-icons/hi";
+import { SlMenu } from "react-icons/sl";
+
+import { VscChromeClose } from "react-icons/vsc";
 
 const Header = () => {
-  return <div>Header</div>;
+  const [show, setShow] = useState("top");
+  const [lastScrolly, setLastScrolly] = useState(0);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [query, setQuery] = useState("");
+  const [showSearch, setShowSearch] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  const controlNavbar = () => {
+    console.log(window.scrollY);
+    if (window.scrollY > 200) {
+      if (window.scrollY > lastScrolly && !mobileMenu) {
+        setShow("hide");
+      } else {
+        setShow("show");
+      }
+    } else {
+      setShow("top");
+    }
+    setLastScrolly(window.scrollY);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", controlNavbar);
+    return () => {
+      return window.removeEventListener("scroll", controlNavbar);
+    };
+  }, [lastScrolly]);
+
+  const searchQueryHandler = (event) => {
+    if (event.key === "Enter" && query.length > 0) {
+      navigate(`/search/${query}`);
+      setTimeout(() => {
+        setShowSearch(false);
+      }, 1000);
+    }
+  };
+
+  const openSearch = () => {
+    setMobileMenu(false);
+    setShowSearch(true);
+  };
+
+  const opneMobileMenu = () => {
+    setMobileMenu(true);
+    setShowSearch(false);
+  };
+
+  return (
+    <header className={`header ${mobileMenu ? "mobileView" : ""} ${show}`}>
+      <ContentWrapper>
+        <div className="logo">
+          <img src={logo} alt="movix logo" />
+        </div>
+        <ul className="menuItems">
+          <li className="menuItem">Movies</li>
+          <li className="menuItem">TV Shows</li>
+          <li className="menuItem">
+            {showSearch ? (
+              <VscChromeClose onClick={() => setShowSearch(false)} />
+            ) : (
+              <HiOutlineSearch onClick={openSearch} />
+            )}
+          </li>
+        </ul>
+
+        <div className="mobileMenuItems">
+          <HiOutlineSearch onClick={openSearch} />
+          {mobileMenu ? (
+            <VscChromeClose onClick={() => setMobileMenu(false)} />
+          ) : (
+            <SlMenu onClick={opneMobileMenu} />
+          )}
+        </div>
+      </ContentWrapper>
+      {showSearch && (
+        <div className="searchBar">
+          <ContentWrapper>
+            <div className="searchInput">
+              <input
+                type="text"
+                placeholder="Movies, shows and more"
+                onChange={() => setQuery(event.target.value)}
+                onKeyUp={searchQueryHandler}
+              />
+              <VscChromeClose onClick={() => setShowSearch(false)} />
+            </div>
+          </ContentWrapper>
+        </div>
+      )}
+    </header>
+  );
 };
 
 export default Header;
