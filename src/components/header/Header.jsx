@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./style.scss";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ContentWrapper from "../contentWrapper/ContentWrapper";
 import logo from "../../assets/movix-logo.svg";
 import { HiOutlineSearch } from "react-icons/hi";
@@ -22,7 +22,6 @@ const Header = () => {
   }, [location]);
 
   const controlNavbar = () => {
-    console.log(window.scrollY);
     if (window.scrollY > 200) {
       if (window.scrollY > lastScrolly && !mobileMenu) {
         setShow("hide");
@@ -61,15 +60,28 @@ const Header = () => {
     setShowSearch(false);
   };
 
+  const navigationHandler = (type) => {
+    if (type === "movie") {
+      navigate("/explore/movie");
+    } else {
+      navigate("explore/tv");
+    }
+    setMobileMenu(false);
+  };
+
   return (
     <header className={`header ${mobileMenu ? "mobileView" : ""} ${show}`}>
       <ContentWrapper>
-        <div className="logo">
+        <div className="logo" onClick={() => navigate("/")}>
           <img src={logo} alt="movix logo" />
         </div>
         <ul className="menuItems">
-          <li className="menuItem">Movies</li>
-          <li className="menuItem">TV Shows</li>
+          <li className="menuItem" onClick={() => navigationHandler("movie")}>
+            Movies
+          </li>
+          <li className="menuItem" onClick={() => navigationHandler("tv")}>
+            TV Shows
+          </li>
           <li className="menuItem">
             {showSearch ? (
               <VscChromeClose onClick={() => setShowSearch(false)} />
